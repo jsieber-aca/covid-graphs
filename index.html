@@ -67,7 +67,7 @@ var myChart = new Chart(ctx, {
 
         const numberofconfirmed = 50000;
         const proxyurl = "https://cors-anywhere.herokuapp.com/";
-        const url = "https://www.trackcorona.live/api/countries/";
+        const url = "https://www.trackcorona.live/api/countries";
         fetch(proxyurl + url)
         //fetch('https://www.trackcorona.live/api/countries/')
           .then((response) => {
@@ -79,12 +79,24 @@ var myChart = new Chart(ctx, {
             return response.json();
           })
           .then((cdata) => {
-            var countries = cdata.data.filter(function (data){
+
+
+          var countriesSorted = cdata.data.sort((a, b) => parseFloat(a.confirmed) - parseFloat(b.confirmed));
+
+          console.log(countriesSorted);
+
+
+
+
+
+
+
+            var countries = countriesSorted.filter(function (data){
               return data.confirmed > numberofconfirmed;
             }).map(function (data){
               return data.location;
             });
-            var confirmed = cdata.data.filter(function (data){
+            var confirmed = countriesSorted.filter(function (data){
                 return data.confirmed > numberofconfirmed;
             }).map(function (data){
               return data.confirmed;
@@ -160,7 +172,7 @@ var myChart = new Chart(ctx, {
           //Montana datasets
 
           //const proxyurl = "https://cors-anywhere.herokuapp.com/";
-          const murl = "https://www.trackcorona.live/api/cities/";
+          const murl = "https://www.trackcorona.live/api/cities";
           fetch(proxyurl + murl)
           //fetch('https://www.trackcorona.live/api/countries/')
             .then((response) => {
@@ -172,12 +184,18 @@ var myChart = new Chart(ctx, {
               return response.json();
             })
             .then((mdata) => {
-              var counties = mdata.data.filter(function (data){
+
+              var countiesSorted = mdata.data.sort((a, b) => parseFloat(a.confirmed) - parseFloat(b.confirmed));
+
+              console.log(countiesSorted);
+
+
+              var counties = countiesSorted.filter(function (data){
                 return data.location.substr(-7) === "Montana";
               }).map(function (data){
                 return data.location.slice(0, -15);;
               });
-              var cconfirmed = mdata.data.filter(function (data){
+              var cconfirmed = countiesSorted.filter(function (data){
                   return data.location.substr(-7) === "Montana";
               }).map(function (data){
                 return data.confirmed;
