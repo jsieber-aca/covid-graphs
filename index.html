@@ -42,6 +42,19 @@
           </div>
         </div>
       </div>
+      <div class="row">
+        <div class="col">
+          <h2 id="PennsylvaniaTotal">Pennsylvania Total Confirmed Cases</h2>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col">
+          <h3>Confirmed Cases by county in Pennsylvania</h3>
+          <div class="chart-container-Montana" style="position: relative; height:100%; width:100%">
+            <canvas id="myChartPennsylvania"></canvas>
+          </div>
+        </div>
+      </div>
     </div>
 
       <script>
@@ -80,10 +93,16 @@
             }).map(function (data){
               return data.confirmed;
             });
-
+            var deaths = countriesSorted.filter(function (data){
+                return data.confirmed > numberofconfirmed;
+            }).map(function (data){
+              return data.dead;
+            });
+            console.log(deaths);
             // reverse arrays for display left to right
             countries = countries.reverse();
             confirmed = confirmed.reverse();
+            deaths = deaths.reverse();
 
             var ctx = document.getElementById('myChart').getContext('2d');
             var myChart = new Chart(ctx, {
@@ -98,15 +117,28 @@
                         highlightFill: randomColorGenerator(countries.length),
                         highlightStroke: randomColorGenerator(countries.length),
                         borderWidth: 1
-                    }]
+                    },
+                  {
+                    label: '# of deaths',
+                    data: deaths,
+                    backgroundColor: randomColorGenerator(countries.length),
+                    borderColor: randomColorGenerator(countries.length),
+                    highlightFill: randomColorGenerator(countries.length),
+                    highlightStroke: randomColorGenerator(countries.length),
+                    borderWidth: 1
+                  }
+                ]
                 },
                 options: {
                     scales: {
                         yAxes: [{
-                            ticks: {
-                                beginAtZero: true
-
-                            }
+                          stacked: false,
+                          ticks: {
+                            beginAtZero: true
+                          }
+                        }],
+                        xAxes: [{
+                          stacked: false
                         }]
                     }
                 }
@@ -129,43 +161,97 @@
               }
               return response.json();
             })
-            .then((mdata) => {
+            .then((statedata) => {
 
-              var countiesSorted = mdata.data.sort((a, b) => parseFloat(a.confirmed) - parseFloat(b.confirmed));
+              var countiesSorted = statedata.data.sort((a, b) => parseFloat(a.confirmed) - parseFloat(b.confirmed));
 
               console.log(countiesSorted);
 
 
-              var counties = countiesSorted.filter(function (data){
+              var mtcounties = countiesSorted.filter(function (data){
                 return data.location.substr(-7) === "Montana";
               }).map(function (data){
                 return data.location.slice(0, -15);
               });
-              var cconfirmed = countiesSorted.filter(function (data){
+              var pacounties = countiesSorted.filter(function (data){
+                return data.location.substr(-12) === "Pennsylvania";
+              }).map(function (data){
+                return data.location.slice(0, -15);
+              });
+              var mtconfirmed = countiesSorted.filter(function (data){
                   return data.location.substr(-7) === "Montana";
               }).map(function (data){
                 return data.confirmed;
               });
+              var paconfirmed = countiesSorted.filter(function (data){
+                  return data.location.substr(-12) === "Pennsylvania";
+              }).map(function (data){
+                return data.confirmed;
+              });
+              var mtdead = countiesSorted.filter(function (data){
+                  return data.location.substr(-7) === "Montana";
+              }).map(function (data){
+                return data.dead;
+              });
+              var padead = countiesSorted.filter(function (data){
+                  return data.location.substr(-12) === "Pennsylvania";
+              }).map(function (data){
+                return data.dead;
+              });
+
 
               // total for state
-              stateTotal = cconfirmed.reduce(function(a, b){return a+b;});
-              updateStateTotal(stateTotal);
+              mtstateTotal = mtconfirmed.reduce(function(a, b){return a+b;});
+              pastateTotal = paconfirmed.reduce(function(a, b){return a+b;});
+              updateStateTotal(mtstateTotal,pastateTotal);
               // reverse arrays for display
-              counties = counties.reverse();
-              cconfirmed = cconfirmed.reverse();
+              mtcounties = mtcounties.reverse();
+              mtconfirmed = mtconfirmed.reverse();
+              mtdead = mtdead.reverse();
+              pacounties = pacounties.reverse();
+              paconfirmed = paconfirmed.reverse();
+              padead = padead.reverse();
 
               var ctx = document.getElementById('myChartMontana').getContext('2d');
               var myChart = new Chart(ctx, {
                   type: 'bar',
                   data: {
-                      labels: counties,
+                      labels: mtcounties,
                       datasets: [{
                           label: '# of confirmed cases',
-                          data: cconfirmed,
-                          backgroundColor: randomColorGenerator(counties.length),
-                          borderColor: randomColorGenerator(counties.length),
-                          highlightFill: randomColorGenerator(counties.length),
-                          highlightStroke: randomColorGenerator(counties.length),
+                          data: mtconfirmed,
+                          backgroundColor: randomColorGenerator(mtcounties.length),
+                          borderColor: randomColorGenerator(mtcounties.length),
+                          highlightFill: randomColorGenerator(mtcounties.length),
+                          highlightStroke: randomColorGenerator(mtcounties.length),
+                          borderWidth: 1
+                      }]
+                  },
+                  options: {
+                      scales: {
+                          yAxes: [{
+                              ticks: {
+                                  beginAtZero: true
+
+                              }
+                          }]
+                      }
+                  }
+              });
+
+              //Pennsylvania Chart
+              var ctx = document.getElementById('myChartPennsylvania').getContext('2d');
+              var myChart = new Chart(ctx, {
+                  type: 'bar',
+                  data: {
+                      labels: pacounties,
+                      datasets: [{
+                          label: '# of confirmed cases',
+                          data: paconfirmed,
+                          backgroundColor: randomColorGenerator(pacounties.length),
+                          borderColor: randomColorGenerator(pacounties.length),
+                          highlightFill: randomColorGenerator(pacounties.length),
+                          highlightStroke: randomColorGenerator(pacounties.length),
                           borderWidth: 1
                       }]
                   },
@@ -183,8 +269,9 @@
 
             });
 
-             var updateStateTotal = function (n) {
-               $("#montanaTotal").html('Montana Total Confirmed Cases ' + n);
+             var updateStateTotal = function (mt, pa) {
+               $("#montanaTotal").html('Montana Total Confirmed Cases ' + mt);
+               $("#PennsylvaniaTotal").html('Pennsylvania Total Confirmed Cases ' + pa);
              }
 
               var randomColorGenerator = function (l) {
