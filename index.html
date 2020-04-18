@@ -23,7 +23,7 @@
       </div>
       <div class="row">
         <div class="col">
-          <h3>Countries with over 50,000 confirmed cases</h3>
+          <h3>Top 10 countries by confirmed cases</h3>
           <div class="chart-container-top-countries" style="position: relative; height:100%; width:100%">
               <canvas id="myChart"></canvas>
           </div>
@@ -31,12 +31,13 @@
       </div>
       <div class="row">
         <div class="col">
-          <h2 id="montanaTotal">Montana Total Confirmed Cases</h2>
+          <h2 id="montanaTotal">Montana Total Confirmed Cases </h2>
+          <h3 id="MontanaDeadTotal"> Dead </h3>
         </div>
       </div>
       <div class="row">
         <div class="col">
-          <h3>Confirmed Cases by county in Montana</h3>
+          <h3>Top 10 Confirmed Cases by county in Montana</h3>
           <div class="chart-container-Montana" style="position: relative; height:100%; width:100%">
             <canvas id="myChartMontana"></canvas>
           </div>
@@ -44,12 +45,27 @@
       </div>
       <div class="row">
         <div class="col">
-          <h2 id="PennsylvaniaTotal">Pennsylvania Total Confirmed Cases</h2>
+          <h2 id="MichiganTotal">Michigan Total Confirmed Cases </h2>
+          <h3 id="MichiganDeadTotal"> Dead </h3>
         </div>
       </div>
       <div class="row">
         <div class="col">
-          <h3>Confirmed Cases by county in Pennsylvania</h3>
+          <h3>Top 10 Confirmed Cases by county in Michigan</h3>
+          <div class="chart-container-Montana" style="position: relative; height:100%; width:100%">
+            <canvas id="myChartMichigan"></canvas>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col">
+          <h2 id="PennsylvaniaTotal">Pennsylvania Total Confirmed Cases</h2>
+          <h3 id="PennsylvaniaDeadTotal"> Dead </h3>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col">
+          <h3>Top 10 Confirmed Cases by county in Pennsylvania</h3>
           <div class="chart-container-Montana" style="position: relative; height:100%; width:100%">
             <canvas id="myChartPennsylvania"></canvas>
           </div>
@@ -63,7 +79,7 @@
         //  console.log(data); // [{"Hello": "world"}, …]
         //});
 
-        const numberofconfirmed = 50000;
+        const numberofconfirmed = 1;
         const proxyurl = "https://cors-anywhere.herokuapp.com/";
         const url = "https://www.trackcorona.live/api/countries";
         fetch(proxyurl + url)
@@ -81,7 +97,7 @@
 
           var countriesSorted = cdata.data.sort((a, b) => parseFloat(a.confirmed) - parseFloat(b.confirmed));
 
-          console.log(countriesSorted);
+          //console.log(countriesSorted);
 
             var countries = countriesSorted.filter(function (data){
               return data.confirmed > numberofconfirmed;
@@ -98,11 +114,11 @@
             }).map(function (data){
               return data.dead;
             });
-            console.log(deaths);
+            //console.log(deaths);
             // reverse arrays for display left to right
-            countries = countries.reverse();
-            confirmed = confirmed.reverse();
-            deaths = deaths.reverse();
+            countries = countries.reverse().slice(0, 10);
+            confirmed = confirmed.reverse().slice(0, 10);
+            deaths = deaths.reverse().slice(0, 10);
 
             var ctx = document.getElementById('myChart').getContext('2d');
             var myChart = new Chart(ctx, {
@@ -118,15 +134,15 @@
                         highlightStroke: randomColorGenerator(countries.length),
                         borderWidth: 1
                     },
-                  {
-                    label: '# of deaths',
-                    data: deaths,
-                    backgroundColor: randomColorGenerator(countries.length),
-                    borderColor: randomColorGenerator(countries.length),
-                    highlightFill: randomColorGenerator(countries.length),
-                    highlightStroke: randomColorGenerator(countries.length),
-                    borderWidth: 1
-                  }
+                    {
+                      label: '# of deaths',
+                      data: deaths,
+                      backgroundColor: randomColorGenerator(countries.length),
+                      borderColor: randomColorGenerator(countries.length),
+                      highlightFill: randomColorGenerator(countries.length),
+                      highlightStroke: randomColorGenerator(countries.length),
+                      borderWidth: 1
+                    }
                 ]
                 },
                 options: {
@@ -147,7 +163,7 @@
           });
 
 
-          //Montana datasets
+          //Montana,Pennsylvania, and Michigan datasets
 
           //const proxyurl = "https://cors-anywhere.herokuapp.com/";
           const murl = "https://www.trackcorona.live/api/cities";
@@ -178,6 +194,11 @@
               }).map(function (data){
                 return data.location.slice(0, -15);
               });
+              var micounties = countiesSorted.filter(function (data){
+                return data.location.substr(-8) === "Michigan";
+              }).map(function (data){
+                return data.location.slice(0, -15);
+              });
               var mtconfirmed = countiesSorted.filter(function (data){
                   return data.location.substr(-7) === "Montana";
               }).map(function (data){
@@ -185,6 +206,11 @@
               });
               var paconfirmed = countiesSorted.filter(function (data){
                   return data.location.substr(-12) === "Pennsylvania";
+              }).map(function (data){
+                return data.confirmed;
+              });
+              var miconfirmed = countiesSorted.filter(function (data){
+                  return data.location.substr(-8) === "Michigan";
               }).map(function (data){
                 return data.confirmed;
               });
@@ -198,19 +224,32 @@
               }).map(function (data){
                 return data.dead;
               });
+              var midead = countiesSorted.filter(function (data){
+                  return data.location.substr(-8) === "Michigan";
+              }).map(function (data){
+                return data.dead;
+              });
 
 
               // total for state
               mtstateTotal = mtconfirmed.reduce(function(a, b){return a+b;});
               pastateTotal = paconfirmed.reduce(function(a, b){return a+b;});
-              updateStateTotal(mtstateTotal,pastateTotal);
+              mistateTotal = miconfirmed.reduce(function(a, b){return a+b;});
+              mtdeadstateTotal = mtdead.reduce(function(a, b){return a+b;});
+              padeadstateTotal = padead.reduce(function(a, b){return a+b;});
+              mideadstateTotal = midead.reduce(function(a, b){return a+b;});
+              updateStateTotal(mtstateTotal,pastateTotal,mistateTotal);
+              updateStateDeadTotal(mtdeadstateTotal,padeadstateTotal,mideadstateTotal);
               // reverse arrays for display
-              mtcounties = mtcounties.reverse();
-              mtconfirmed = mtconfirmed.reverse();
-              mtdead = mtdead.reverse();
-              pacounties = pacounties.reverse();
-              paconfirmed = paconfirmed.reverse();
-              padead = padead.reverse();
+              mtcounties = mtcounties.reverse().slice(0, 10);
+              mtconfirmed = mtconfirmed.reverse().slice(0, 10);
+              mtdead = mtdead.reverse().slice(0, 10);
+              pacounties = pacounties.reverse().slice(0, 10);
+              paconfirmed = paconfirmed.reverse().slice(0, 10);
+              padead = padead.reverse().slice(0, 10);
+              micounties = micounties.reverse().slice(0, 10);
+              miconfirmed = miconfirmed.reverse().slice(0, 10);
+              midead = midead.reverse().slice(0, 10);
 
               var ctx = document.getElementById('myChartMontana').getContext('2d');
               var myChart = new Chart(ctx, {
@@ -225,16 +264,28 @@
                           highlightFill: randomColorGenerator(mtcounties.length),
                           highlightStroke: randomColorGenerator(mtcounties.length),
                           borderWidth: 1
+                      },
+                      {
+                        label: '# of deaths',
+                        data: mtdead,
+                        backgroundColor: randomColorGenerator(mtcounties.length),
+                        borderColor: randomColorGenerator(mtcounties.length),
+                        highlightFill: randomColorGenerator(mtcounties.length),
+                        highlightStroke: randomColorGenerator(mtcounties.length),
+                        borderWidth: 1
                       }]
                   },
                   options: {
                       scales: {
-                          yAxes: [{
-                              ticks: {
-                                  beginAtZero: true
-
-                              }
-                          }]
+                        yAxes: [{
+                          stacked: false,
+                          ticks: {
+                            beginAtZero: true
+                          }
+                        }],
+                        xAxes: [{
+                          stacked: false
+                        }]
                       }
                   }
               });
@@ -253,25 +304,85 @@
                           highlightFill: randomColorGenerator(pacounties.length),
                           highlightStroke: randomColorGenerator(pacounties.length),
                           borderWidth: 1
-                      }]
+                      },
+                      {
+                        label: '# of deaths',
+                        data: padead,
+                        backgroundColor: randomColorGenerator(pacounties.length),
+                        borderColor: randomColorGenerator(pacounties.length),
+                        highlightFill: randomColorGenerator(pacounties.length),
+                        highlightStroke: randomColorGenerator(pacounties.length),
+                        borderWidth: 1
+                      }
+                    ]
                   },
                   options: {
                       scales: {
-                          yAxes: [{
-                              ticks: {
-                                  beginAtZero: true
-
-                              }
-                          }]
+                        yAxes: [{
+                          stacked: false,
+                          ticks: {
+                            beginAtZero: true
+                          }
+                        }],
+                        xAxes: [{
+                          stacked: false
+                        }]
                       }
                   }
               });
 
+              //Michigan Chart
+              var ctx = document.getElementById('myChartMichigan').getContext('2d');
+              var myChart = new Chart(ctx, {
+                  type: 'bar',
+                  data: {
+                      labels: micounties,
+                      datasets: [{
+                          label: '# of confirmed cases',
+                          data: miconfirmed,
+                          backgroundColor: randomColorGenerator(micounties.length),
+                          borderColor: randomColorGenerator(micounties.length),
+                          highlightFill: randomColorGenerator(micounties.length),
+                          highlightStroke: randomColorGenerator(micounties.length),
+                          borderWidth: 1
+                      },
+                      {
+                        label: '# of deaths',
+                        data: midead,
+                        backgroundColor: randomColorGenerator(micounties.length),
+                        borderColor: randomColorGenerator(micounties.length),
+                        highlightFill: randomColorGenerator(micounties.length),
+                        highlightStroke: randomColorGenerator(micounties.length),
+                        borderWidth: 1
+                      }
+                    ]
+                  },
+                  options: {
+                      scales: {
+                        yAxes: [{
+                          stacked: false,
+                          ticks: {
+                            beginAtZero: true
+                          }
+                        }],
+                        xAxes: [{
+                          stacked: false
+                        }]
+                      }
+                  }
+              });
             });
 
-             var updateStateTotal = function (mt, pa) {
+             var updateStateTotal = function (mt, pa, mi) {
                $("#montanaTotal").html('Montana Total Confirmed Cases ' + mt);
                $("#PennsylvaniaTotal").html('Pennsylvania Total Confirmed Cases ' + pa);
+               $("#MichiganTotal").html('Michigan Total Confirmed Cases ' + mi);
+             }
+
+             var updateStateDeadTotal = function (mt, pa, mi) {
+               $("#MontanaDeadTotal").html('Total Dead ' + mt);
+               $("#PennsylvaniaDeadTotal").html('Total Dead ' + pa);
+               $("#MichiganDeadTotal").html('Total Dead ' + mi);
              }
 
               var randomColorGenerator = function (l) {
