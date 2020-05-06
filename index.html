@@ -192,12 +192,12 @@
               var pacounties = countiesSorted.filter(function (data){
                 return data.location.substr(-12) === "Pennsylvania";
               }).map(function (data){
-                return data.location.slice(0, -15);
+                return data.location.slice(0, -20);
               });
               var micounties = countiesSorted.filter(function (data){
                 return data.location.substr(-8) === "Michigan";
               }).map(function (data){
-                return data.location.slice(0, -15);
+                return data.location.slice(0, -16);
               });
               var mtconfirmed = countiesSorted.filter(function (data){
                   return data.location.substr(-7) === "Montana";
