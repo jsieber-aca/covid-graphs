@@ -82,7 +82,7 @@
         const numberofconfirmed = 1;
         const proxyurl = "https://cors-anywhere.herokuapp.com/";
         const url = "https://www.trackcorona.live/api/countries";
-        fetch(proxyurl + url)
+        fetch(url)
         //fetch('https://www.trackcorona.live/api/countries/')
           .then((response) => {
             if (response.status !== 200) {
@@ -167,7 +167,7 @@
 
           //const proxyurl = "https://cors-anywhere.herokuapp.com/";
           const murl = "https://www.trackcorona.live/api/cities";
-          fetch(proxyurl + murl)
+          fetch(murl)
           //fetch('https://www.trackcorona.live/api/countries/')
             .then((response) => {
               if (response.status !== 200) {
